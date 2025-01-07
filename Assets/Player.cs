@@ -41,18 +41,23 @@ public class Player : MonoBehaviour
     public PlayerJumpState jumpState { get; private set; }
     public PlayerAirState airState { get; private set; }
     public PlayerWallSlideState wallSlide { get; private set; }
+    public PlayerWallJumpState wallJump {  get; private set; }
     public PlayerDashState dashState { get; private set; }
+
+    public PlayerPrimaryAttack primaryAttack { get; private set; }
     #endregion
     private void Awake()
     {
         stateMachine = new PlayerStateMachine();
-
+        //        this = player, stateMachine is the machcine controlling it all, "Idle" is the name of the bool in the engine
         idleState = new PlayerIdleState(this, stateMachine, "Idle");
         moveState = new PlayerMoveState(this, stateMachine, "Move");
         jumpState = new PlayerJumpState(this, stateMachine, "Jump");
         airState =  new PlayerAirState(this, stateMachine, "Jump");
         dashState = new PlayerDashState(this, stateMachine, "Dash");
         wallSlide = new PlayerWallSlideState(this, stateMachine, "WallSlide");
+        wallJump =  new PlayerWallJumpState(this, stateMachine, "Jump");
+        primaryAttack = new PlayerPrimaryAttack(this, stateMachine, "Attack");
     }
 
     private void Start()
@@ -76,8 +81,12 @@ public class Player : MonoBehaviour
     }
 
 
+    public void AnimationTrigger() => stateMachine.currentState.AnimationFinishTrigger();
+
     public void CheckForDashInput()
     {
+        if (IsWallDetected())
+            return;
 
         dashUsageTimer -= Time.deltaTime;
 
